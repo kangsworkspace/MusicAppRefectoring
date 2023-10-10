@@ -115,6 +115,8 @@ class DetailTableViewCell: UITableViewCell {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .darkGray
+        button.clipsToBounds = true
+        button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -136,12 +138,6 @@ class DetailTableViewCell: UITableViewCell {
         setupMain()
     }
     
-    // 오토 레이아웃 설정
-    override func updateConstraints() {
-        setupAutoLayout()
-        super.updateConstraints()
-    }
-    
     // 셀이 재사용되기 전에 호출되는 메서드
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -158,6 +154,7 @@ class DetailTableViewCell: UITableViewCell {
         sendSubviewToBack(contentView)
         
         setupAddView()
+        setupAutoLayout()
     }
     
     
@@ -175,13 +172,12 @@ class DetailTableViewCell: UITableViewCell {
         
         // 셋 - 메인 이미지 뷰 오토 레이아웃
         NSLayoutConstraint.activate([
+            mainImageView.widthAnchor.constraint(equalToConstant: 100),
+            mainImageView.heightAnchor.constraint(equalToConstant: 100),
             
             mainImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
             mainImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
-            mainImageView.trailingAnchor.constraint(equalTo: mainStackView.leadingAnchor, constant: -10),
-            
-            mainImageView.widthAnchor.constraint(equalToConstant: 100),
-            mainImageView.heightAnchor.constraint(equalToConstant: 100)
+            mainImageView.trailingAnchor.constraint(equalTo: mainStackView.leadingAnchor, constant: -20)
         ])
         
         // 셋 - 백 뷰 오토 레이아웃
@@ -191,11 +187,11 @@ class DetailTableViewCell: UITableViewCell {
         
         // 셋 - 좋아요 버튼 오토 레이아웃
         NSLayoutConstraint.activate([
-            likeButton.topAnchor.constraint(equalTo: backView.topAnchor, constant: 0),
-            likeButton.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 0),
-            likeButton.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 0),
+            likeButton.widthAnchor.constraint(equalToConstant: 30),
             
-            likeButton.widthAnchor.constraint(equalToConstant: 30)
+            likeButton.topAnchor.constraint(equalTo: backView.topAnchor, constant: 0),
+            likeButton.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 0),
+            likeButton.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 0)
         ])
         
         // 셋 - 하단 백 뷰 오토 레이아웃
@@ -205,18 +201,18 @@ class DetailTableViewCell: UITableViewCell {
         
         // 셋 - 업데이트 버튼 오토 레이아웃
         NSLayoutConstraint.activate([
+            updateButton.widthAnchor.constraint(equalToConstant: 60),
+
             updateButton.topAnchor.constraint(equalTo: bottomBackView.topAnchor, constant: 0),
-            updateButton.bottomAnchor.constraint(equalTo: bottomBackView.bottomAnchor, constant: 0),
-            updateButton.trailingAnchor.constraint(equalTo: bottomBackView.trailingAnchor, constant: 0),
-            
-            updateButton.widthAnchor.constraint(equalToConstant: 60)
+            updateButton.leadingAnchor.constraint(equalTo: bottomBackView.leadingAnchor, constant: 0),
+            updateButton.bottomAnchor.constraint(equalTo: bottomBackView.bottomAnchor, constant: 0)
         ])
         
         // 셋 - 스택 뷰 오토 레이아웃
         NSLayoutConstraint.activate([
             mainStackView.leadingAnchor.constraint(equalTo: mainImageView.trailingAnchor, constant: 20),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
             mainStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
+            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
             mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10)
         ])
     }
@@ -246,7 +242,7 @@ class DetailTableViewCell: UITableViewCell {
     }
     
     func setButtonStatus() {
-        updateButton.setImage(Image.redHeartFilled, for: .normal)
+        likeButton.setImage(Image.redHeartFilled, for: .normal)
     }
     
 }

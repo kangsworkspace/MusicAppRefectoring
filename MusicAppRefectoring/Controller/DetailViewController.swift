@@ -34,7 +34,7 @@ class DetailViewController: UIViewController {
         setupTableView()
         setupTableViewAutoLayout()
     }
-
+    
     // 셋업 - 테이블 뷰
     func setupTableView() {
         
@@ -73,14 +73,16 @@ extension DetailViewController: UITableViewDataSource {
         // 데이터 전달
         let musicSaved = self.musicManager.getMusicDatasFromCoreData()[indexPath.row]
         cell.musicSaved = musicSaved
+        cell.selectionStyle = .none
         return cell
     }
 }
 
 // 확장 - 테이블 뷰 델리게이트
 extension DetailViewController: UITableViewDelegate {
-    // 테이블뷰 셀의 높이를 유동적으로 조절하기
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    
+    // 셀 높이 조절
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
     
