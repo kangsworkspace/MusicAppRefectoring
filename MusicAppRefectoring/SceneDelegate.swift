@@ -14,13 +14,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 
-        // Navigation Contoller 설정
+        // scene 설정
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let naviVC = UINavigationController(rootViewController: ViewController())
+        // 탭 바 컨트롤러 생성
+        let tabBarCon = UITabBarController()
         
-        window?.rootViewController = naviVC
+        // 네이게이션 바 코드로 생성(루트 뷰) + 변수에 뷰 컨트롤러 담기
+        let vc1 = UINavigationController(rootViewController: ViewController())
+        
+        // 변수에 뷰 컨트롤러 담기
+        let vc2 = DetailViewController()
+        
+        // 뷰 컨트롤러 -> 탭 바 설정
+        tabBarCon.setViewControllers([vc1, vc2], animated: false)
+        tabBarCon.modalPresentationStyle = .fullScreen
+        tabBarCon.tabBar.backgroundColor = .white
+        tabBarCon.tabBar.tintColor = .lightGray
+        
+        // 탭 바 이름
+        vc1.title = "MusicSearch"
+        vc2.title = "Saved Music List"
+        
+        // 탭 바 이미지
+        guard let items = tabBarCon.tabBar.items else { return }
+        items[0].image = Image.magnifyingGlass
+        items[0].selectedImage = Image.selectedMagnifyingGlass
+        items[1].image = Image.bookMark
+        items[1].selectedImage = Image.selectedBookMark
+        
+        // 첫 화면(루트 뷰)를 설정
+        window?.rootViewController = tabBarCon
         window?.makeKeyAndVisible()
     }
 

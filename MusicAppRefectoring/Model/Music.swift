@@ -7,23 +7,23 @@
 
 import UIKit
 
-// API에서 받는 정보
+// API에서 받을 정보
 struct MusicData: Codable {
     let resultCount: Int
     let results: [Music]
 }
 
-// 프로젝트에 사용할 Music 구조체
-struct Music: Codable {
+// Music 구조체
+final class Music: Codable {
     let songName: String?
     let artistName: String?
     let albumName: String?
     let previewUrl: String?
     let imageUrl: String?
     private let releaseDate: String?
+    var isSaved: Bool = false
     
-    // 네트워크에서 주는 이름을 변환하는 방법 (원시값)
-    // (서버: trackName ===> songName)
+    // 네트워크에서 주는 이름을 변환 (서버: trackName ===> songName)
     enum CodingKeys: String, CodingKey {
         case songName = "trackName"
         case artistName
@@ -33,10 +33,9 @@ struct Music: Codable {
         case releaseDate
     }
     
-    // (출시 정보에 대한 날짜를 잘 계산하기 위해서) 계산 속성으로
-    // "2011-07-05T12:00:00Z" ===> "yyyy-MM-dd"
+    // 계산 속성으로 바꾸기
     var releaseDateString: String? {
-        // 서버에서 주는 형태 (ISO규약에 따른 문자열 형태)
+        
         guard let isoDate = ISO8601DateFormatter().date(from: releaseDate ?? "") else {
             return ""
         }

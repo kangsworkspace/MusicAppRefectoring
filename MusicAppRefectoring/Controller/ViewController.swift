@@ -12,26 +12,34 @@ class ViewController: UIViewController {
     // 생성 - 테이블 뷰
     let tableView = UITableView()
     
-    // 생성 - 서치 컨트롤러 **임시 세팅**
+    // 생성 - 서치 컨트롤러
     let searchController = UISearchController()
     
     // 생성 - 네트워크 매니저(싱글톤)
     var networkManager = NetworkManager.shared
     
+    // 음악 데이터 관리 매니저
+    let musicManager = MusicManager.shared
+    
     // 생성 - 음악 데이터(빈배열로 시작)
     var musicArrays: [Music] = []
     
-    // 생성 - 검색 단어(서치바에서 전달받음)
-    var searchTerm: String? {
-        didSet {
-            setupDatas()
-        }
-    }
+//    // 생성 - 검색 단어(서치바에서 전달받음)
+//    var searchTerm: String? {
+//        didSet {
+//            setupDatas()
+//        }
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupMain()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
     
 
@@ -42,6 +50,7 @@ class ViewController: UIViewController {
         setupTableView()
         setupTableViewAutoLayout()
         setupNavigationBar()
+        setupTabBar()
         setupSearchBar()
     }
     
@@ -79,6 +88,15 @@ class ViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.compactAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
+
+    }
+    
+    // 셋업 - 탭 바
+    func setupTabBar() {
+        // UITabBar의 tintColor 설정
+        if let tabBarController = self.tabBarController {
+            tabBarController.tabBar.tintColor = .black
+        }
     }
     
     // 서치바 셋팅
@@ -96,25 +114,33 @@ class ViewController: UIViewController {
     
     // 셋업 - 데이터 셋업
     func setupDatas() {
+//        
+//        guard let term = searchTerm else { return }
+//        
+//        // (네트워킹 시작전에) 다시 빈배열로 만들기
+//        self.musicArrays = []
+//        
+//        // 네트워킹 시작
+//        networkManager.fetchMusic(searchTerm: term) { result in
+//            print(#function)
+//            switch result {
+//            case .success(let musicDatas):
+//                // 데이터(배열)을 받아오고 난 후
+//                self.musicArrays = musicDatas
+//                // 테이블뷰 리로드
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                }
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            }
+//        }
         
-        guard let term = searchTerm else { return }
-        
-        // (네트워킹 시작전에) 다시 빈배열로 만들기
-        self.musicArrays = []
-        
-        // 네트워킹 시작
-        networkManager.fetchMusic(searchTerm: term) { result in
-            print(#function)
-            switch result {
-            case .success(let musicDatas):
-                // 데이터(배열)을 받아오고 난 후
-                self.musicArrays = musicDatas
-                // 테이블뷰 리로드
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
+        // 서버에서 데이터 가져오기
+        musicManager.setupDatasFromAPI {
+            DispatchQueue.main.async {
+                print("데이터 불러옴")
+                self.tableView.reloadData()
             }
         }
     }
@@ -131,8 +157,7 @@ extension ViewController: UITableViewDelegate {
 // 확장 - 테이블 뷰 데이터 소스
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(#function)
-        return self.musicArrays.count
+        return self.musicManager.getMusicArraysFromAPI().count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -140,22 +165,126 @@ extension ViewController: UITableViewDataSource {
         // 셀 구성
         let cell = tableView.dequeueReusableCell(withIdentifier: "MusicTableViewCell", for: indexPath) as! MusicTableViewCell
         
-        cell.imageUrl = musicArrays[indexPath.row].imageUrl
-        cell.songNameLabel.text = musicArrays[indexPath.row].songName
-        cell.artistNameLabel.text = musicArrays[indexPath.row].artistName
-        cell.albumNameLabel.text = musicArrays[indexPath.row].albumName
-        cell.releaseDateLabel.text = musicArrays[indexPath.row].releaseDateString
+        // 데이터 전달
+        let music = musicManager.getMusicArraysFromAPI()[indexPath.row]
+        cell.music = music
         
+        cell.likeButtonPressed = { [weak self] (senderCell, isSaved) in
+            guard let self = self else { return }
+            // 저장이 안되어 있으면
+            if !isSaved {
+                // 저장 알럿창 띄우기
+                self.makeMessageAlert { text, savedAction in
+                    // Ok - 선택시
+                    if savedAction {
+                        self.musicManager.saveMusicData(with: music, message: text) {
+                            // 저장여부 설정 및 버튼 스타일 바꾸기
+                            senderCell.music?.isSaved = true
+                            // 버튼 재설정
+                            senderCell.setButtonStatus()
+                            print("저장 성공")
+                        }
+                    } else {
+                        print("저장 취소")
+                    }
+                }
+            // 저장되어 있으면
+            } else {
+                // 저장 취소 알럿창 띄우기
+                self.makeRemoveCheckAlert { removeAction in
+                    if removeAction {
+                        self.musicManager.deleteMusic(with: music) {
+                            senderCell.music?.isSaved = false
+                            senderCell.setButtonStatus()
+                            print("저장된 데이터 삭제")
+                        }
+                    } else {
+                        print("저장된 데이터 삭제 취소")
+                    }
+                }
+            }
+        }
         cell.selectionStyle = .none
         return cell
+    }
+    
+    func makeMessageAlert(completion: @escaping (String?, Bool) -> Void) {
+        let alert = UIAlertController(title: "음악 관련 메세지", message: "음악과 함께 저장하려는 문장을 입력하세요", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = "저장하려는 메세지"
+        }
+        
+        // 저장할 텍스트
+        var savedText: String? = ""
+        
+        // alert창 - 1
+        let ok = UIAlertAction(title: "확인", style: .default) { okAction in
+            savedText = alert.textFields?[0].text
+            completion(savedText, true)
+        }
+        
+        // alert창 - 2
+        let cancel = UIAlertAction(title: "취소", style: .default) { cancelAction in
+            completion(nil, false)
+        }
+        
+        alert.addAction(ok)
+        alert.addAction(cancel)
+        
+        // 창 화면에 띄우기
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func makeRemoveCheckAlert(completion: @escaping (Bool) -> Void) {
+        let alert = UIAlertController(title: "저장 음악 삭제", message: "정말 저장된 음악을 지우시겠습니까?", preferredStyle: .alert)
+        
+        // alert창 - 1
+        let ok = UIAlertAction(title: "확인", style: .default) { okAction in
+            completion(true)
+        }
+        
+        // alert창 - 2
+        let cancel = UIAlertAction(title: "취소", style: .default) { cancelAction in
+            completion(false)
+        }
+        
+        alert.addAction(ok)
+        alert.addAction(cancel)
+        
+        // 창 화면에 띄우기
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
 extension ViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        print("서치바에 입력되는 단어", searchController.searchBar.text ?? "")
-
-        // 찾으려는 단어 전달
-        searchTerm = searchController.searchBar.text ?? ""
+        
+        guard let text = searchController.searchBar.text?.lowercased() else { return }
+        
+        musicManager.fetchDatasFromAPI(with: text) {
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    // 서치바에서 글자가 바뀔때마다 -> 소문자 변환
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchBar.text = searchText.lowercased()
+    }
+    
+    // 유저가 스크롤하는 것이 끝나려는 시점에 호출되는 메서드
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        // 스크롤을 내릴 때 -> 탭 바 내리기, 스크롤을 올릴 때 -> 탭 바 올리기
+        UIView.animate(withDuration: 0.3) {
+            guard velocity.y != 0 else { return }
+            if velocity.y < 0 {
+                let height = self.tabBarController?.tabBar.frame.height ?? 0.0
+                self.tabBarController?.tabBar.frame.origin = CGPoint(x: 0, y: UIScreen.main.bounds.maxY - height)
+            } else {
+                self.tabBarController?.tabBar.frame.origin = CGPoint(x: 0, y: UIScreen.main.bounds.maxY)
+            }
+        }
     }
 }
