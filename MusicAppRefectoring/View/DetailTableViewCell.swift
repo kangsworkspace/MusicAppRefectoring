@@ -16,6 +16,12 @@ class DetailTableViewCell: UITableViewCell {
         }
     }
     
+    // like 버튼 클로저 전달
+    var likeButtonPressed: ((DetailTableViewCell) -> ()) = { (sender) in }
+    
+    // update 버튼 클로저 전달
+    var updateButtonPressed: ((DetailTableViewCell, String?) -> ()) = { (sender, text) in }
+    
 
     // 생성 - 메인 이미지 뷰
     lazy var mainImageView: UIImageView = {
@@ -76,6 +82,7 @@ class DetailTableViewCell: UITableViewCell {
     var likeButton: UIButton = {
         let button = UIButton()
         button.setImage(Image.redHeart, for: .normal)
+        button.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -117,6 +124,7 @@ class DetailTableViewCell: UITableViewCell {
         button.backgroundColor = .darkGray
         button.clipsToBounds = true
         button.layer.cornerRadius = 5
+        button.addTarget(self, action: #selector(updateButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -245,4 +253,11 @@ class DetailTableViewCell: UITableViewCell {
         likeButton.setImage(Image.redHeartFilled, for: .normal)
     }
     
+    @objc func likeButtonTapped() {
+        likeButtonPressed(self)
+    }
+ 
+    @objc func updateButtonTapped() {
+        updateButtonPressed(self, musicSaved?.myMessage)
+    }
 }

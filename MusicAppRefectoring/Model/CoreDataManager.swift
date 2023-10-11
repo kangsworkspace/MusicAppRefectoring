@@ -110,6 +110,7 @@ final class CoreDataManager {
                         if context.hasChanges {
                             do {
                                 try context.save()
+                                print("CoreManager - deleteMusic - 동작완료")
                                 completion()
                             } catch {
                                 print(error)
@@ -125,6 +126,8 @@ final class CoreDataManager {
             }
         }
     }
+    
+    
     
     // [UPDATE] - 코어데이터에서 데이터 수정하기
     func updateMusic(with music: MusicSaved, completion: @escaping () -> Void) {

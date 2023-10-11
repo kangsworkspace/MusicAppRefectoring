@@ -95,16 +95,18 @@ final class MusicManager {
             }
         }
     }
-
+    
     // [코어데이터] - 삭제(Music타입을 가지고 데이터 지우기) ==> 저장되어 있는지 확인하고 지우기
     func deleteMusic(with music: Music, completion: @escaping () -> Void) {
+                
         // 동일한 데이터 찾아내기
         let musicSaved = musicSavedArrays.filter { $0.songName == music.songName && $0.artistName == music.artistName }
+        
         // 데이터 전달
         if let targetMusicSaved = musicSaved.first {
             // [DELETE]
             self.deleteMusicFromCoreData(with: targetMusicSaved) {
-                print("삭제 완료")
+                
                 completion()
             }
         } else {
@@ -116,7 +118,10 @@ final class MusicManager {
     // [코어데이터] - 코어데이터 데이터 삭제하기, MusicSaved타입을 가지고 데이터 지우기(DELETE)
     func deleteMusicFromCoreData(with music: MusicSaved, completion: @escaping () -> Void) {
         coreDataManager.deleteMusic(with: music) {
-            completion()
+            self.fetchMusicFromCoreData {
+                print("deleteMusicFromCoreData - 동작완료")
+                completion()
+            }
         }
     }
 
