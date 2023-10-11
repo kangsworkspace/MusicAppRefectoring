@@ -24,13 +24,6 @@ class ViewController: UIViewController {
     // 생성 - 음악 데이터(빈배열로 시작)
     var musicArrays: [Music] = []
     
-//    // 생성 - 검색 단어(서치바에서 전달받음)
-//    var searchTerm: String? {
-//        didSet {
-//            setupDatas()
-//        }
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -114,27 +107,6 @@ class ViewController: UIViewController {
     
     // 셋업 - 데이터 셋업
     func setupDatas() {
-//        
-//        guard let term = searchTerm else { return }
-//        
-//        // (네트워킹 시작전에) 다시 빈배열로 만들기
-//        self.musicArrays = []
-//        
-//        // 네트워킹 시작
-//        networkManager.fetchMusic(searchTerm: term) { result in
-//            print(#function)
-//            switch result {
-//            case .success(let musicDatas):
-//                // 데이터(배열)을 받아오고 난 후
-//                self.musicArrays = musicDatas
-//                // 테이블뷰 리로드
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                }
-//            case .failure(let error):
-//                print(error.localizedDescription)
-//            }
-//        }
         
         // 서버에서 데이터 가져오기
         musicManager.setupDatasFromAPI {

@@ -196,7 +196,7 @@ class DetailTableViewCell: UITableViewCell {
         // 셋 - 좋아요 버튼 오토 레이아웃
         NSLayoutConstraint.activate([
             likeButton.widthAnchor.constraint(equalToConstant: 30),
-            
+
             likeButton.topAnchor.constraint(equalTo: backView.topAnchor, constant: 0),
             likeButton.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 0),
             likeButton.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 0)

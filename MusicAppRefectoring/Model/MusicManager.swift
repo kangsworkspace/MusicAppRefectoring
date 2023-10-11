@@ -119,6 +119,7 @@ final class MusicManager {
     func deleteMusicFromCoreData(with music: MusicSaved, completion: @escaping () -> Void) {
         coreDataManager.deleteMusic(with: music) {
             self.fetchMusicFromCoreData {
+                self.checkWhetherSaved()
                 print("deleteMusicFromCoreData - 동작완료")
                 completion()
             }
@@ -143,6 +144,8 @@ final class MusicManager {
             }) {
                 // 이미 저장되어있는 데이터라고 설정
                 music.isSaved = true
+            } else {
+                music.isSaved = false
             }
         }
     }

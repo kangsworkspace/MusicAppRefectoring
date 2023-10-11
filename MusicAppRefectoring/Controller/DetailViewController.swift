@@ -82,7 +82,7 @@ extension DetailViewController: UITableViewDataSource {
                 // 삭제 확인 버튼
                 if okAction {
                     // 코어데이터에 삭제 하도록 전달
-                    self.musicManager.deleteMusicFromCoreData(with: musicSaved) {
+                    self.musicManager.deleteMusicFromCoreData(with: musicSaved) {              
                         self.tableView.reloadData()
                         print("likeButtonPressed - 동작완료")
                     }
@@ -91,9 +91,7 @@ extension DetailViewController: UITableViewDataSource {
                 }
             }
         }
-        
-        
-        
+
         // 코멘트 수정 창 띄우기
         cell.updateButtonPressed = { [weak self] (senderCell, message) in
             guard let self = self else { return }
