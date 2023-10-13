@@ -46,7 +46,7 @@
     }
 ```
 
-## 🎬 완성된 모습(전과 동일합니다.)
+## 🎬 완성된 모습
 ![1](https://github.com/kangsworkspace/DataStorage/assets/141600830/07873aba-4761-4a36-be6c-ba4e369b862d)
 ![2](https://github.com/kangsworkspace/DataStorage/assets/141600830/00bd129d-9d04-4328-b6c6-1d8a63a51dfa)
 ![3](https://github.com/kangsworkspace/DataStorage/assets/141600830/476e186d-850d-49fa-8877-959b8b08be42)
